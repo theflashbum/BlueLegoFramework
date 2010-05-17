@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<componentPackage>
+
+    <component id="LegoBlock" class="blue.lego.components.LegoBlock"/>
+    <component id="StyleBehavior" class="blue.lego.behaviors.StyleBehavior"/>
+    <component id="StyleSheetManager" class="blue.lego.managers.StyleSheetManager"/>
+    <component id="BlueLegoApplication" class="blue.lego.components.BlueLegoApplication"/>
+    <component id="ImageBlock" class="blue.lego.components.ImageBlock"/>
+    <component id="Label" class="blue.lego.components.Label"/>
+    <component id="TextArea" class="blue.lego.components.TextArea"/>
+
+    <component id="HorizontalLayoutAlgorithm" class="blue.lego.layouts.algorithms.HorizontalStackAlgorithm"/>
+    <component id="VerticalLayoutAlgorithm" class="blue.lego.layouts.algorithms.VerticalStackAlgorithm"/>
+
+</componentPackage>
