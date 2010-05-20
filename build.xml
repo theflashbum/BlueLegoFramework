@@ -7,7 +7,7 @@
 	<property file="build.properties" />
 
 	<!-- Set up FlexUnit Ant tasks -->
-	<taskdef resource="flexUnitTasks.tasks" classpath="${lib.loc}/flexUnitTasks.jar" />
+	<taskdef resource="flexUnitTasks.tasks" classpath="build/unittestlib/flexUnitTasks.jar" />
 
 	<target name="usage">
 		<echo message="" />
@@ -40,9 +40,6 @@
 		<echo>[clean] Removing Build and Report directories</echo>
 		<delete includeemptydirs="true" failonerror="false">
 			<fileset dir="${report.loc}" defaultexcludes="false">
-				<include name="**/*" />
-			</fileset>
-			<fileset dir="${dist.loc}" defaultexcludes="false">
 				<include name="**/*" />
 			</fileset>
 		</delete>
@@ -122,80 +119,28 @@
 		<echo>[create-docs] ASDOC documentation generated successfully</echo>
 	</target>
 
-	<target name="setup-bin" depends="asdoc">
-
-		<sync todir="${bin.loc}">
-			<fileset dir="${basedir}/build/bin-resources" />
-		</sync>
-
-		<copy file="${basedir}/build/html-template/index.template.html" tofile="${bin.loc}/index.html" />
-
-		<replace file="${bin.loc}/index.html" propertyFile="${basedir}/build/html-template/html.properties">
-			<replacefilter token="@width@" property="width" />
-			<replacefilter token="@height@" property="height" />
-			<replacefilter token="@example@" value="${project.name.versioned}" />
-			<replacefilter token="@version_major@" property="version_major" />
-			<replacefilter token="@version_minor@" property="version_minor" />
-			<replacefilter token="@version_minor@" property="version_minor" />
-			<replacefilter token="@version_revision@" property="version_revision" />
-		</replace>
-	</target>
-
-	<!-- Compile Release SWF -->
-	<target name="compile-swf" depends="setup-bin">
-		<echo>[compile] Compiling SWF</echo>
-		<echo>[compile] Using Flex SDK at: ${FLEX_HOME}</echo>
-
-		<java jar="${FLEX_HOME}/lib/mxmlc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
-			<arg value="${main.src.loc}/${project.name}.as" />
-			<arg value="-source-path=${main.src.loc}" />
-
-			<arg value="-output=${bin.loc}/swfs/${project.name.versioned}.swf" />
-			<arg value="-static-link-runtime-shared-libraries=true" />
-			<!-- Include classes from SWCs in this folder, but only the ones we use. -->
-			<arg value="-library-path+=${lib.loc}" />
-
-			<arg value="-incremental=true" />
-			<arg value="-debug=true" />
-			<arg value="-verbose-stacktraces=true" />
-			<arg value="-headless-server=true" />
-		</java>
-
-		<echo>[compile] Debug SWF ${project.name.versioned}.swf created successfully</echo>
-	</target>
-
-	<target name="local-test" depends="compile-swf" if="autolaunch.url">
-		<exec executable="open">
-			<arg line="-a ${browser} ${bin.loc}/index.html" />
-		</exec>
-	</target>
 
 	<!-- Compile Release SWC -->
 	<target name="compile-swc" depends="asdoc">
 		<echo>[compile] Compiling release SWC</echo>
 		<echo>[compile] Using Flex SDK at: ${FLEX_HOME}</echo>
 
-		<java jar="${FLEX_HOME}/lib/compc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
+		<java jar="${FLEX_HOME}/lib/compc.jar" maxmemory="512m" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
 			<!-- Build our SWC with a versioned name. -->
-			<arg value="-output=${bin.loc}/${project.name.versioned}.swc" />
 
-			<!-- We want all the org package classes in the SWC being built. -->
-			<arg value="-include-sources=${main.src.loc}/" />
+            <arg value="-source-path=${main.src.loc}"/>
+            <arg value="-include-libraries+=${lib.loc}"/>
+            <arg value="-output=${bin.loc}/${project.name.versioned}.swc"/>
+            <arg value="-namespace=http://bluelego.flashartofwar.com,${main.src.loc}/manifest.xml"/>
+            <arg value="-include-namespaces=http://bluelego.flashartofwar.com"/>
 
-			<!-- Include classes from SWCs in this folder, but only the ones we use. -->
-			<arg value="-library-path+=${lib.loc}" />
-
-			<!-- Keep the magic alive. -->
-			<arg value="-keep-as3-metadata+=Inject" />
-
-			<!-- Boolean mosh pit! -->
-			<arg value="-incremental=true" />
-			<arg value="-static-link-runtime-shared-libraries=true" />
-			<arg value="-verbose-stacktraces=true" />
-			<arg value="-headless-server=true" />
 		</java>
 
 		<echo>[compile] Release SWC ${project.name.versioned}.swc created successfully</echo>
 	</target>
+
+    <target name="deploy-swc-lib" depends="compile-swc">
+        <move file="${bin.loc}/${project.name.versioned}.swc" tofile="${lib.deploy.dir}/${deploy.name.versioned}.swc"/>
+    </target>
 
 </project>

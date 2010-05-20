@@ -57,7 +57,7 @@ package blue.lego.components{
         {
             configureDecalSheets();
 
-            if (_onCompleteHandler) _onCompleteHandler();
+            if (_onCompleteHandler != null) _onCompleteHandler();
             _onCompleteHandler = null;
         }
 
